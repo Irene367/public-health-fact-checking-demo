@@ -17,11 +17,7 @@ TOP_BANNER_LINES = [
 
 
 def configure_page() -> None:
-    """Configure the Streamlit page metadata.
-
-    We keep browser-level metadata separate from on-page headings so the app can
-    present a concise tab title while retaining a more descriptive product title.
-    """
+    """Configure the Streamlit page metadata."""
     st.set_page_config(
         page_title=PAGE_BROWSER_TITLE,
         page_icon="🩺",
@@ -33,7 +29,6 @@ def configure_page() -> None:
 # Constants / fake data
 # -------------------------------------------------------------------
 EXAMPLE_CLAIMS = [
-    "Select an example",
     "Vaccines cause infertility",
     "Masks reduce oxygen intake",
     "Antibiotics treat viral infections",
@@ -207,13 +202,8 @@ FAKE_RESULTS = {
 # State init
 # -------------------------------------------------------------------
 def initialize_session_state() -> None:
-    """Initialize session keys used by the app.
-
-    Session state is preserved because the current demo already relies on it,
-    and it will also be useful later for storing API responses and request state.
-    """
+    """Initialize session keys used by the app."""
     st.session_state.setdefault("claim_input", "")
-    st.session_state.setdefault("example_claim", EXAMPLE_CLAIMS[0])
     st.session_state.setdefault("source_filter", SOURCE_FILTERS[0])
     st.session_state.setdefault("result", None)
     st.session_state.setdefault("checked_claim", "")
@@ -222,13 +212,6 @@ def initialize_session_state() -> None:
 # -------------------------------------------------------------------
 # Data functions
 # -------------------------------------------------------------------
-def handle_example_selection() -> None:
-    """Sync the selected example into the text input for a smoother demo flow."""
-    selected_example = st.session_state.example_claim
-    if selected_example != EXAMPLE_CLAIMS[0]:
-        st.session_state.claim_input = selected_example
-
-
 def filter_evidence_by_source(evidence_list: list[dict], source_filter: str) -> list[dict]:
     """Filter evidence items based on the selected source."""
     if source_filter == "All sources":
@@ -254,19 +237,13 @@ def build_default_result(claim: str) -> dict:
 def reset_app_state() -> None:
     """Reset the app back to its initial demo state."""
     st.session_state.claim_input = ""
-    st.session_state.example_claim = EXAMPLE_CLAIMS[0]
     st.session_state.source_filter = SOURCE_FILTERS[0]
     st.session_state.result = None
     st.session_state.checked_claim = ""
 
 
 def get_fact_check_result(claim: str, source_filter: str) -> dict:
-    """Return a fact-check result for the given claim.
-
-    This is the single integration point for data retrieval. Right now it uses
-    local fake data only. If we connect a real backend later, we should update
-    this function and keep the render layer unchanged.
-    """
+    """Return a fact-check result for the given claim."""
     normalized_claim = claim.strip()
     base_result = FAKE_RESULTS.get(normalized_claim)
 
@@ -283,19 +260,8 @@ def get_fact_check_result(claim: str, source_filter: str) -> dict:
 
 
 # -------------------------------------------------------------------
-# Render functions
+# Render helpers
 # -------------------------------------------------------------------
-def render_header() -> None:
-    """Render the top page header and product description."""
-    st.title(PAGE_TITLE)
-    st.write(PAGE_DESCRIPTION)
-
-    # A short trusted-systems banner makes the page feel more product-like
-    # without changing the underlying business logic.
-    with st.container():
-        st.info("\n".join(TOP_BANNER_LINES))
-
-
 def render_theme_hint() -> None:
     """Placeholder for future theme customization guidance.
 
@@ -310,7 +276,7 @@ def format_confidence(confidence: float) -> str:
 
 
 def get_confidence_level(confidence: float) -> str:
-    """Translate a numeric confidence score into a more readable label."""
+    """Translate a numeric confidence score into a readable label."""
     if confidence >= 0.80:
         return "High"
     if confidence >= 0.50:
@@ -319,7 +285,7 @@ def get_confidence_level(confidence: float) -> str:
 
 
 def get_verdict_summary(verdict: str) -> tuple[str, str]:
-    """Return the product-style verdict headline and a one-line interpretation."""
+    """Return the product-style verdict headline and subtitle."""
     verdict_map = {
         "False": (
             "❌ This claim is FALSE",
@@ -343,48 +309,63 @@ def get_verdict_summary(verdict: str) -> tuple[str, str]:
     )
 
 
-def get_verdict_display(verdict: str) -> str:
-    """Return a larger visual verdict label so users can identify the result quickly."""
-    verdict_icons = {
-        "False": "❌",
-        "True": "✅",
-        "Uncertain": "⚠️",
+def get_user_decision_message(verdict: str) -> str:
+    """Return a user-facing action-oriented interpretation."""
+    messages = {
+        "False": (
+            "You can safely ignore this claim — it is not supported by credible evidence."
+        ),
+        "True": (
+            "This claim appears reliable based on trusted evidence, but you should still "
+            "consider context and follow official guidance."
+        ),
+        "Uncertain": (
+            "Treat this claim cautiously — there is not enough credible evidence here to rely on it."
+        ),
     }
-    icon = verdict_icons.get(verdict, "⚠️")
-    return f"## {icon} {verdict}"
-
-
-def render_verdict(verdict: str) -> None:
-    """Render the verdict headline without repeating the same message below."""
-    # A larger verdict headline creates a clear visual focal point for the result area.
-    verdict_title, verdict_summary = get_verdict_summary(verdict)
-    st.markdown(f"## {verdict_title}")
-    st.caption(verdict_summary)
-
-
-def render_results_summary(result: dict) -> None:
-    """Render verdict, explanation, and confidence in the left column."""
-    # This heading helps the assessment read like a standalone decision card.
-    st.markdown("### 🧾 Claim Assessment")
-
-    if result.get("claim"):
-        st.caption(f"Claim checked: {result['claim']}")
-
-    st.divider()
-    render_verdict(result["verdict"])
-    st.divider()
-
-    # A metric plus progress bar makes confidence feel more like a product KPI.
-    confidence_label = get_confidence_level(result["confidence"])
-    st.markdown("### 📊 Confidence")
-    st.metric(
-        label="Confidence",
-        value=f"{confidence_label} ({format_confidence(result['confidence'])})",
+    return messages.get(
+        verdict,
+        "Treat this claim cautiously until more trusted evidence is available."
     )
-    st.progress(result["confidence"])
 
-    st.markdown("### 💡 Explanation")
-    st.write(result["explanation"])
+
+def get_key_takeaways(claim: str, verdict: str) -> list[str]:
+    """Return short takeaway bullets for fast scanning."""
+    takeaways_map = {
+        "Vaccines cause infertility": [
+            "No infertility link found",
+            "Large studies show vaccine safety",
+            "Claim driven by misinformation",
+        ],
+        "Masks reduce oxygen intake": [
+            "No oxygen reduction in normal use",
+            "Breathable for healthy individuals",
+            "No clinical evidence of harm",
+        ],
+        "Antibiotics treat viral infections": [
+            "Antibiotics do not treat viruses",
+            "No recovery benefit for viral illness",
+            "Misuse raises resistance risk",
+        ],
+    }
+
+    if claim in takeaways_map:
+        return takeaways_map[claim]
+
+    if verdict == "True":
+        return [
+            "Evidence supports the claim",
+            "Trusted sources align",
+        ]
+    if verdict == "False":
+        return [
+            "Evidence does not support the claim",
+            "Trusted sources contradict it",
+        ]
+    return [
+        "Evidence is currently insufficient",
+        "More trusted sources are needed",
+    ]
 
 
 def summarize_evidence(evidence_list: list[dict]) -> str:
@@ -408,22 +389,134 @@ def summarize_evidence(evidence_list: list[dict]) -> str:
     return f"{total_sources} sources found · {stance_summary}"
 
 
+def get_evidence_source_summary(evidence_list: list[dict]) -> list[str]:
+    """Return a compact, conclusion-style evidence summary."""
+    if not evidence_list:
+        return ["Consensus: No supporting sources found", "Sources: None in current demo"]
+
+    source_counts: dict[str, int] = {}
+    stance_counts: dict[str, int] = {}
+
+    for evidence in evidence_list:
+        source = evidence.get("source", "Unknown")
+        stance = evidence.get("stance", "Unspecified")
+        source_counts[source] = source_counts.get(source, 0) + 1
+        stance_counts[stance] = stance_counts.get(stance, 0) + 1
+
+    source_line = ", ".join(
+        [f"{source} ({count})" for source, count in source_counts.items()]
+    )
+
+    if len(stance_counts) == 1:
+        only_stance = next(iter(stance_counts))
+        if only_stance == "Refutes claim":
+            consensus_line = "Consensus: All sources refute this claim"
+        elif only_stance == "Supports claim":
+            consensus_line = "Consensus: All sources support this claim"
+        else:
+            consensus_line = f"Consensus: {only_stance}"
+    else:
+        consensus_line = "Consensus: Sources show mixed positions"
+
+    return [
+        consensus_line,
+        f"Sources: {source_line}",
+    ]
+
+
+def get_trusted_sources_label(evidence_list: list[dict]) -> str:
+    """Build a short trust label from available sources."""
+    if not evidence_list:
+        return "🛡️ Trusted sources used: Demo knowledge base"
+
+    ordered_sources: list[str] = []
+    for evidence in evidence_list:
+        source = evidence.get("source", "Unknown")
+        if source not in ordered_sources:
+            ordered_sources.append(source)
+
+    return f"🛡️ Trusted sources used: {' · '.join(ordered_sources)}"
+
+
+# -------------------------------------------------------------------
+# Render functions
+# -------------------------------------------------------------------
+def render_header() -> None:
+    """Render the top page header and product description."""
+    st.title(PAGE_TITLE)
+    st.write(PAGE_DESCRIPTION)
+
+    with st.container():
+        st.info("\n".join(TOP_BANNER_LINES))
+
+
+def render_verdict(result: dict) -> None:
+    """Render a tighter verdict block with a user-facing takeaway."""
+    verdict_title, verdict_summary = get_verdict_summary(result["verdict"])
+
+    with st.container(border=True):
+        st.markdown(verdict_title.replace("❌", "## ❌").replace("✅", "## ✅").replace("⚠️", "## ⚠️"))
+        # Keep the summary visually attached to the verdict so it reads as one block.
+        st.caption(verdict_summary)
+        st.markdown("**💡 What this means for you:**")
+        st.write(get_user_decision_message(result["verdict"]))
+
+
+def render_results_summary(result: dict) -> None:
+    """Render verdict, explanation, and confidence in the left column."""
+    st.markdown("## 🧾 Claim Assessment")
+
+    if result.get("claim"):
+        st.caption(f"Claim checked: {result['claim']}")
+
+    # Add a trust layer near the top of the result flow to reinforce credibility.
+    st.caption(get_trusted_sources_label(result["evidence"]))
+
+    st.divider()
+    render_verdict(result)
+    st.divider()
+
+    confidence_label = get_confidence_level(result["confidence"])
+    st.markdown("### 📊 Confidence")
+    st.metric(
+        label="Confidence",
+        value=f"{confidence_label} ({format_confidence(result['confidence'])})",
+    )
+    st.progress(result["confidence"])
+
+    st.markdown("### 🧠 Key insights")
+    st.caption("What you should know:")
+    takeaways = get_key_takeaways(result.get("claim", ""), result["verdict"])
+    st.markdown("\n".join([f"- {item}" for item in takeaways]))
+
+    with st.expander("💡 Explanation", expanded=False):
+        st.write(result["explanation"])
+
+
 def render_claim_input_panel() -> None:
     """Render the interactive controls and results in the left column."""
+    st.markdown("Try an example:")
+    chip_col_1, chip_col_2, chip_col_3 = st.columns(3, gap="small")
+
+    with chip_col_1:
+        if st.button("Vaccines cause infertility", use_container_width=True):
+            st.session_state.claim_input = "Vaccines cause infertility"
+
+    with chip_col_2:
+        if st.button("Masks reduce oxygen intake", use_container_width=True):
+            st.session_state.claim_input = "Masks reduce oxygen intake"
+
+    with chip_col_3:
+        if st.button("Antibiotics treat viral infections", use_container_width=True):
+            st.session_state.claim_input = "Antibiotics treat viral infections"
+
     st.text_input(
-        "Enter a health-related claim",
+        "💬 Enter a claim to fact-check",
         placeholder="e.g. Vaccines cause infertility",
         key="claim_input",
     )
 
-    st.selectbox(
-        "Try an example claim",
-        EXAMPLE_CLAIMS,
-        index=EXAMPLE_CLAIMS.index(st.session_state.example_claim),
-        key="example_claim",
-        on_change=handle_example_selection,
-    )
-
+    # removed dropdown to reduce redundancy
     st.radio(
         "Source filter",
         SOURCE_FILTERS,
@@ -431,7 +524,6 @@ def render_claim_input_panel() -> None:
         key="source_filter",
     )
 
-    # Putting actions side by side gives the input area a more app-like control bar.
     action_col, clear_col = st.columns([3, 1], gap="small")
 
     with action_col:
@@ -441,14 +533,17 @@ def render_claim_input_panel() -> None:
         clear_clicked = st.button("Clear", use_container_width=True)
 
     if check_clicked:
-        # Show a short loading state so the interaction feels closer to a real product flow.
-        with st.spinner("Checking claim..."):
-            result = get_fact_check_result(
-                st.session_state.claim_input,
-                st.session_state.source_filter,
-            )
-        st.session_state.result = result
-        st.session_state.checked_claim = st.session_state.claim_input.strip()
+        if not st.session_state.claim_input.strip():
+            st.warning("Please enter a claim to check.")
+        else:
+            # Keep loading feedback close to the action so users know analysis is in progress.
+            with st.spinner("Analyzing claim using trusted sources..."):
+                result = get_fact_check_result(
+                    st.session_state.claim_input,
+                    st.session_state.source_filter,
+                )
+            st.session_state.result = result
+            st.session_state.checked_claim = st.session_state.claim_input.strip()
 
     if clear_clicked:
         reset_app_state()
@@ -459,9 +554,9 @@ def render_claim_input_panel() -> None:
 
 def render_evidence_panel() -> None:
     """Render the evidence area in the right column."""
-    st.subheader("Supporting Evidence")
-    # Keep this subtitle concise and product-like while preserving the layout.
+    st.markdown("## 📚 Evidence Panel")
     st.caption("Evidence retrieved from trusted public health sources.")
+    st.caption(f"Showing results from: {st.session_state.source_filter}")
 
     result = st.session_state.result
     if not result:
@@ -469,7 +564,11 @@ def render_evidence_panel() -> None:
         return
 
     evidence_list = result["evidence"]
-    st.caption(summarize_evidence(evidence_list))
+    st.caption(get_trusted_sources_label(evidence_list))
+
+    st.markdown("#### 🧾 Evidence Summary")
+    evidence_summary = get_evidence_source_summary(evidence_list)
+    st.markdown("\n".join([f"- {item}" for item in evidence_summary]))
 
     if not evidence_list:
         st.info("No supporting evidence is available for this claim in the current demo.")
@@ -480,9 +579,7 @@ def render_evidence_panel() -> None:
             f"Evidence {index} · {evidence['source']} · "
             f"{evidence.get('stance', 'Unspecified')} · Score {evidence['score']:.2f}"
         )
-        # Open the strongest evidence by default so users immediately see grounded content.
         with st.expander(expander_title, expanded=index == 1):
-            # Highlight the source name first to make the evidence feel more authoritative.
             source_badges = {
                 "WHO": "🟦",
                 "CDC": "🟩",
@@ -493,16 +590,14 @@ def render_evidence_panel() -> None:
             st.markdown(f"**Title:** {evidence['title']}")
             st.markdown("**Retrieved Text**")
             st.write(evidence["text"])
-            st.markdown(f"**URL:** [Open source]({evidence['url']})")
+            st.markdown(f"[🔗 Open source]({evidence['url']})")
 
 
 def render_model_comparison() -> None:
     """Render the model comparison section at the bottom of the page."""
     result = st.session_state.result
 
-    # Keep secondary comparisons below the fold so the first screen emphasizes
-    # input, verdict, and evidence. This render block can later show live API outputs.
-    with st.expander("See model comparison"):
+    with st.expander("🔍 See model comparison", expanded=False):
         left_col, right_col = st.columns(2, gap="large")
 
         with left_col:
