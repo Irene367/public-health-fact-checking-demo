@@ -38,13 +38,26 @@ SOURCE_FILTERS = ["All sources", "WHO only", "CDC only"]
 FAKE_RESULTS = {
     "Vaccines cause infertility": {
         "verdict": "False",
+        "summary": "There is no credible scientific evidence supporting this claim.",
+        "what_this_means": (
+            "You can safely ignore this claim — it is not supported by credible evidence."
+        ),
+        "trusted_sources": ["WHO", "CDC"],
+        "key_insights": [
+            "No infertility link found",
+            "Large studies show vaccine safety",
+            "Claim driven by misinformation",
+        ],
         "explanation": (
             "There is no credible evidence that approved vaccines cause infertility. "
             "Public health agencies and large clinical studies have found no link between "
             "vaccination and reduced fertility in women or men. This claim often stems "
             "from misinformation that misrepresents immune responses or reproductive biology."
         ),
-        "confidence": 0.96,
+        "evidence_summary": [
+            "Consensus: All sources refute this claim",
+            "Sources: WHO (2), CDC (1)",
+        ],
         "evidence": [
             {
                 "source": "WHO",
@@ -55,7 +68,6 @@ FAKE_RESULTS = {
                     "carefully evaluated for safety and there is no evidence that they "
                     "cause infertility."
                 ),
-                "score": 0.92,
                 "url": "https://www.who.int/news-room/questions-and-answers/item/vaccines-and-immunization-vaccine-safety",
             },
             {
@@ -66,7 +78,6 @@ FAKE_RESULTS = {
                     "The CDC states that there is currently no evidence showing that "
                     "any vaccines, including COVID-19 vaccines, cause fertility problems."
                 ),
-                "score": 0.89,
                 "url": "https://www.cdc.gov/coronavirus/2019-ncov/vaccines/planning-for-pregnancy.html",
             },
             {
@@ -77,7 +88,6 @@ FAKE_RESULTS = {
                     "WHO myth-busting materials describe infertility claims as unsupported "
                     "and inconsistent with available clinical and population-level evidence."
                 ),
-                "score": 0.85,
                 "url": "https://www.who.int/",
             },
         ],
@@ -93,13 +103,26 @@ FAKE_RESULTS = {
     },
     "Masks reduce oxygen intake": {
         "verdict": "False",
+        "summary": "There is no credible scientific evidence supporting this claim.",
+        "what_this_means": (
+            "You can safely ignore this claim — it is not supported by credible evidence."
+        ),
+        "trusted_sources": ["WHO", "CDC"],
+        "key_insights": [
+            "No oxygen reduction in normal use",
+            "Breathable for healthy individuals",
+            "No clinical evidence of harm",
+        ],
         "explanation": (
             "Standard face masks are designed to be breathable while blocking respiratory droplets. "
             "Studies and public health guidance show that masks do not meaningfully reduce oxygen "
             "levels for the general public during normal use. People with specific medical concerns "
             "should still follow personalized clinical advice."
         ),
-        "confidence": 0.93,
+        "evidence_summary": [
+            "Consensus: All sources refute this claim",
+            "Sources: WHO (2), CDC (1)",
+        ],
         "evidence": [
             {
                 "source": "WHO",
@@ -109,7 +132,6 @@ FAKE_RESULTS = {
                     "WHO guidance indicates that prolonged use of medical masks by healthy people "
                     "does not cause carbon dioxide intoxication or oxygen deficiency."
                 ),
-                "score": 0.91,
                 "url": "https://www.who.int/",
             },
             {
@@ -120,7 +142,6 @@ FAKE_RESULTS = {
                     "The CDC explains that masks are made from materials that allow normal airflow "
                     "while helping reduce the spread of infectious particles."
                 ),
-                "score": 0.87,
                 "url": "https://www.cdc.gov/",
             },
             {
@@ -131,7 +152,6 @@ FAKE_RESULTS = {
                     "Public-facing WHO materials note that masks can be worn safely and should not "
                     "cause oxygen deprivation in routine community settings."
                 ),
-                "score": 0.84,
                 "url": "https://www.who.int/",
             },
         ],
@@ -145,13 +165,26 @@ FAKE_RESULTS = {
     },
     "Antibiotics treat viral infections": {
         "verdict": "False",
+        "summary": "There is no credible scientific evidence supporting this claim.",
+        "what_this_means": (
+            "You can safely ignore this claim — it is not supported by credible evidence."
+        ),
+        "trusted_sources": ["CDC", "WHO"],
+        "key_insights": [
+            "Antibiotics do not treat viruses",
+            "No recovery benefit for viral illness",
+            "Misuse raises resistance risk",
+        ],
         "explanation": (
             "Antibiotics are used to treat bacterial infections, not viral infections. "
             "Using antibiotics when they are not needed does not help patients recover from viruses "
             "and can contribute to antimicrobial resistance. Viral illnesses often require supportive "
             "care or other targeted treatments instead."
         ),
-        "confidence": 0.98,
+        "evidence_summary": [
+            "Consensus: All sources refute this claim",
+            "Sources: CDC (2), WHO (1)",
+        ],
         "evidence": [
             {
                 "source": "CDC",
@@ -161,7 +194,6 @@ FAKE_RESULTS = {
                     "The CDC states that antibiotics do not work on viruses such as those that "
                     "cause colds, flu, and most sore throats."
                 ),
-                "score": 0.95,
                 "url": "https://www.cdc.gov/antibiotic-use/",
             },
             {
@@ -172,7 +204,6 @@ FAKE_RESULTS = {
                     "WHO explains that misuse and overuse of antibiotics accelerate antimicrobial "
                     "resistance and includes taking antibiotics for viral infections as an example of misuse."
                 ),
-                "score": 0.90,
                 "url": "https://www.who.int/news-room/fact-sheets/detail/antimicrobial-resistance",
             },
             {
@@ -183,7 +214,6 @@ FAKE_RESULTS = {
                     "CDC campaign materials emphasize that antibiotics are not effective against viruses "
                     "and should only be used when medically appropriate."
                 ),
-                "score": 0.86,
                 "url": "https://www.cdc.gov/antibiotic-use/week/",
             },
         ],
@@ -218,70 +248,7 @@ def filter_evidence_by_source(evidence_list: list[dict], source_filter: str) -> 
         return evidence_list
 
     source_name = source_filter.replace(" only", "")
-    return [item for item in evidence_list if item["source"] == source_name]
-
-
-def build_default_result(claim: str) -> dict:
-    """Return a fallback result when the claim is not in the demo database."""
-    return {
-        "verdict": "Uncertain",
-        "explanation": "No matching result in demo database.",
-        "confidence": 0.50,
-        "evidence": [],
-        "seq2seq_answer": "No matching result in demo database.",
-        "rag_answer": "No matching result in demo database.",
-        "claim": claim,
-    }
-
-
-def reset_app_state() -> None:
-    """Reset the app back to its initial demo state."""
-    st.session_state.claim_input = ""
-    st.session_state.source_filter = SOURCE_FILTERS[0]
-    st.session_state.result = None
-    st.session_state.checked_claim = ""
-
-
-def get_fact_check_result(claim: str, source_filter: str) -> dict:
-    """Return a fact-check result for the given claim."""
-    normalized_claim = claim.strip()
-    base_result = FAKE_RESULTS.get(normalized_claim)
-
-    if not base_result:
-        return build_default_result(normalized_claim)
-
-    filtered_evidence = filter_evidence_by_source(base_result["evidence"], source_filter)
-
-    return {
-        **base_result,
-        "claim": normalized_claim,
-        "evidence": filtered_evidence,
-    }
-
-
-# -------------------------------------------------------------------
-# Render helpers
-# -------------------------------------------------------------------
-def render_theme_hint() -> None:
-    """Placeholder for future theme customization guidance.
-
-    If we want a more branded visual style later, we can configure it in
-    `.streamlit/config.toml` without changing the app logic below.
-    """
-
-
-def format_confidence(confidence: float) -> str:
-    """Format confidence as a percentage for a more product-like UI."""
-    return f"{round(confidence * 100):d}%"
-
-
-def get_confidence_level(confidence: float) -> str:
-    """Translate a numeric confidence score into a readable label."""
-    if confidence >= 0.80:
-        return "High"
-    if confidence >= 0.50:
-        return "Medium"
-    return "Low"
+    return [item for item in evidence_list if item.get("source") == source_name]
 
 
 def get_verdict_summary(verdict: str) -> tuple[str, str]:
@@ -300,13 +267,7 @@ def get_verdict_summary(verdict: str) -> tuple[str, str]:
             "There is not enough credible evidence in the current knowledge base.",
         ),
     }
-    return verdict_map.get(
-        verdict,
-        (
-            "⚠️ This claim is UNCERTAIN",
-            "There is not enough credible evidence in the current knowledge base.",
-        ),
-    )
+    return verdict_map.get(verdict, verdict_map["Uncertain"])
 
 
 def get_user_decision_message(verdict: str) -> str:
@@ -317,21 +278,18 @@ def get_user_decision_message(verdict: str) -> str:
         ),
         "True": (
             "This claim appears reliable based on trusted evidence, but you should still "
-            "consider context and follow official guidance."
+            "follow official public health guidance."
         ),
         "Uncertain": (
             "Treat this claim cautiously — there is not enough credible evidence here to rely on it."
         ),
     }
-    return messages.get(
-        verdict,
-        "Treat this claim cautiously until more trusted evidence is available."
-    )
+    return messages.get(verdict, messages["Uncertain"])
 
 
-def get_key_takeaways(claim: str, verdict: str) -> list[str]:
-    """Return short takeaway bullets for fast scanning."""
-    takeaways_map = {
+def get_key_insights(claim: str, verdict: str) -> list[str]:
+    """Return short insight bullets when the backend does not provide them."""
+    insights_map = {
         "Vaccines cause infertility": [
             "No infertility link found",
             "Large studies show vaccine safety",
@@ -349,48 +307,36 @@ def get_key_takeaways(claim: str, verdict: str) -> list[str]:
         ],
     }
 
-    if claim in takeaways_map:
-        return takeaways_map[claim]
+    if claim in insights_map:
+        return insights_map[claim]
 
     if verdict == "True":
-        return [
-            "Evidence supports the claim",
-            "Trusted sources align",
-        ]
+        return ["Evidence supports the claim", "Trusted sources align"]
     if verdict == "False":
-        return [
-            "Evidence does not support the claim",
-            "Trusted sources contradict it",
-        ]
-    return [
-        "Evidence is currently insufficient",
-        "More trusted sources are needed",
-    ]
+        return ["Evidence does not support the claim", "Trusted sources contradict it"]
+    return ["Evidence is currently insufficient", "More trusted sources are needed"]
 
 
-def summarize_evidence(evidence_list: list[dict]) -> str:
-    """Summarize how many evidence items were retrieved and what stance they take."""
-    if not evidence_list:
-        return "No supporting sources found in the current demo."
-
-    total_sources = len(evidence_list)
-    stance_counts: dict[str, int] = {}
+def get_trusted_sources(evidence_list: list[dict]) -> list[str]:
+    """Return unique evidence sources in display order."""
+    sources = []
     for evidence in evidence_list:
-        stance = evidence.get("stance", "Unspecified")
-        stance_counts[stance] = stance_counts.get(stance, 0) + 1
-
-    if len(stance_counts) == 1:
-        only_stance = next(iter(stance_counts))
-        return f"{total_sources} sources found · All {only_stance.lower()}"
-
-    stance_summary = " / ".join(
-        f"{count} {stance.lower()}" for stance, count in stance_counts.items()
-    )
-    return f"{total_sources} sources found · {stance_summary}"
+        source = evidence.get("source")
+        if source and source not in sources:
+            sources.append(source)
+    return sources
 
 
-def get_evidence_source_summary(evidence_list: list[dict]) -> list[str]:
-    """Return a compact, conclusion-style evidence summary."""
+def get_trusted_sources_label(evidence_list: list[dict]) -> str:
+    """Build a short trust label from available evidence sources."""
+    sources = get_trusted_sources(evidence_list)
+    if not sources:
+        return "🛡️ Trusted sources used: Demo knowledge base"
+    return f"🛡️ Trusted sources used: {' · '.join(sources)}"
+
+
+def get_evidence_summary(evidence_list: list[dict]) -> list[str]:
+    """Return a concise evidence-backed conclusion."""
     if not evidence_list:
         return ["Consensus: No supporting sources found", "Sources: None in current demo"]
 
@@ -418,29 +364,240 @@ def get_evidence_source_summary(evidence_list: list[dict]) -> list[str]:
     else:
         consensus_line = "Consensus: Sources show mixed positions"
 
+    return [consensus_line, f"Sources: {source_line}"]
+
+
+def build_default_models(verdict: str) -> list[dict]:
+    """Return fallback model rows when backend/model-level outputs are unavailable."""
+    final_verdict = verdict.upper()
     return [
-        consensus_line,
-        f"Sources: {source_line}",
+        {
+            "model_name": "Seq2Seq",
+            "model_type": "closed_book",
+            "verdict": final_verdict,
+            "summary": "No model-specific summary is available for this demo claim.",
+            "has_evidence": False,
+            "evidence_sources": [],
+        },
+        {
+            "model_name": "RAG Model 1",
+            "model_type": "rag",
+            "verdict": final_verdict,
+            "summary": "No retrieved evidence is available for this demo claim.",
+            "has_evidence": False,
+            "evidence_sources": [],
+        },
+        {
+            "model_name": "RAG Model 2",
+            "model_type": "rag",
+            "verdict": final_verdict,
+            "summary": "No retrieved evidence is available for this demo claim.",
+            "has_evidence": False,
+            "evidence_sources": [],
+        },
+        {
+            "model_name": "RAG Model 3",
+            "model_type": "rag",
+            "verdict": final_verdict,
+            "summary": "No retrieved evidence is available for this demo claim.",
+            "has_evidence": False,
+            "evidence_sources": [],
+        },
     ]
 
 
-def get_trusted_sources_label(evidence_list: list[dict]) -> str:
-    """Build a short trust label from available sources."""
-    if not evidence_list:
-        return "🛡️ Trusted sources used: Demo knowledge base"
+def get_mock_model_metadata(claim: str, verdict: str) -> dict:
+    """Return mock multi-model metadata until the backend provides it."""
+    shared_false_models = {
+        "Vaccines cause infertility": {
+            "final_verdict": "FALSE",
+            "agreement_summary": "3 of 4 models refute the claim",
+            "models": [
+                {
+                    "model_name": "Seq2Seq",
+                    "model_type": "closed_book",
+                    "verdict": "FALSE",
+                    "summary": "This model classifies the infertility claim as false based on learned patterns.",
+                    "has_evidence": False,
+                    "evidence_sources": [],
+                },
+                {
+                    "model_name": "RAG Model 1",
+                    "model_type": "rag",
+                    "verdict": "FALSE",
+                    "summary": "WHO and CDC evidence do not support a link between vaccines and infertility.",
+                    "has_evidence": True,
+                    "evidence_sources": ["WHO", "CDC"],
+                },
+                {
+                    "model_name": "RAG Model 2",
+                    "model_type": "rag",
+                    "verdict": "FALSE",
+                    "summary": "Retrieved public health guidance refutes the infertility claim.",
+                    "has_evidence": True,
+                    "evidence_sources": ["WHO"],
+                },
+                {
+                    "model_name": "RAG Model 3",
+                    "model_type": "rag",
+                    "verdict": "TRUE",
+                    "summary": "This model interpreted one retrieved passage incorrectly as supportive.",
+                    "has_evidence": True,
+                    "evidence_sources": ["WHO"],
+                },
+            ],
+        },
+        "Masks reduce oxygen intake": {
+            "final_verdict": "FALSE",
+            "agreement_summary": "4 of 4 models refute the claim",
+            "models": [
+                {
+                    "model_name": "Seq2Seq",
+                    "model_type": "closed_book",
+                    "verdict": "FALSE",
+                    "summary": "This model classifies the oxygen intake claim as false.",
+                    "has_evidence": False,
+                    "evidence_sources": [],
+                },
+                {
+                    "model_name": "RAG Model 1",
+                    "model_type": "rag",
+                    "verdict": "FALSE",
+                    "summary": "WHO guidance states that masks do not cause oxygen deficiency.",
+                    "has_evidence": True,
+                    "evidence_sources": ["WHO"],
+                },
+                {
+                    "model_name": "RAG Model 2",
+                    "model_type": "rag",
+                    "verdict": "FALSE",
+                    "summary": "CDC evidence indicates masks allow normal airflow during routine use.",
+                    "has_evidence": True,
+                    "evidence_sources": ["CDC"],
+                },
+                {
+                    "model_name": "RAG Model 3",
+                    "model_type": "rag",
+                    "verdict": "FALSE",
+                    "summary": "WHO and CDC passages consistently refute oxygen deprivation concerns.",
+                    "has_evidence": True,
+                    "evidence_sources": ["WHO", "CDC"],
+                },
+            ],
+        },
+        "Antibiotics treat viral infections": {
+            "final_verdict": "FALSE",
+            "agreement_summary": "4 of 4 models refute the claim",
+            "models": [
+                {
+                    "model_name": "Seq2Seq",
+                    "model_type": "closed_book",
+                    "verdict": "FALSE",
+                    "summary": "This model classifies the antibiotic claim as false.",
+                    "has_evidence": False,
+                    "evidence_sources": [],
+                },
+                {
+                    "model_name": "RAG Model 1",
+                    "model_type": "rag",
+                    "verdict": "FALSE",
+                    "summary": "CDC evidence states antibiotics do not work on viruses.",
+                    "has_evidence": True,
+                    "evidence_sources": ["CDC"],
+                },
+                {
+                    "model_name": "RAG Model 2",
+                    "model_type": "rag",
+                    "verdict": "FALSE",
+                    "summary": "WHO guidance identifies antibiotic use for viral infections as misuse.",
+                    "has_evidence": True,
+                    "evidence_sources": ["WHO"],
+                },
+                {
+                    "model_name": "RAG Model 3",
+                    "model_type": "rag",
+                    "verdict": "FALSE",
+                    "summary": "Retrieved CDC and WHO sources consistently refute the claim.",
+                    "has_evidence": True,
+                    "evidence_sources": ["CDC", "WHO"],
+                },
+            ],
+        },
+    }
 
-    ordered_sources: list[str] = []
-    for evidence in evidence_list:
-        source = evidence.get("source", "Unknown")
-        if source not in ordered_sources:
-            ordered_sources.append(source)
+    return shared_false_models.get(
+        claim,
+        {
+            "final_verdict": verdict.upper(),
+            "agreement_summary": "Model agreement summary is not available.",
+            "models": build_default_models(verdict),
+        },
+    )
 
-    return f"🛡️ Trusted sources used: {' · '.join(ordered_sources)}"
+
+def build_default_result(claim: str) -> dict:
+    """Return a fallback result when the claim is not in the demo database."""
+    model_metadata = get_mock_model_metadata(claim, "Uncertain")
+    return {
+        "claim": claim,
+        "verdict": "Uncertain",
+        "summary": "There is not enough credible evidence in the current knowledge base.",
+        "what_this_means": (
+            "Treat this claim cautiously — there is not enough credible evidence here to rely on it."
+        ),
+        "trusted_sources": [],
+        "key_insights": [
+            "Evidence is currently insufficient",
+            "More trusted sources are needed",
+        ],
+        "explanation": "No matching result in demo database.",
+        "evidence": [],
+        "final_verdict": model_metadata["final_verdict"],
+        "agreement_summary": model_metadata["agreement_summary"],
+        "models": model_metadata["models"],
+        "seq2seq_answer": "No matching result in demo database.",
+        "rag_answer": "No matching result in demo database.",
+    }
+
+
+def reset_app_state() -> None:
+    """Reset the app back to its initial demo state."""
+    st.session_state.claim_input = ""
+    st.session_state.source_filter = SOURCE_FILTERS[0]
+    st.session_state.result = None
+    st.session_state.checked_claim = ""
+
+
+def get_fact_check_result(claim: str, source_filter: str) -> dict:
+    """Return a fact-check result for the given claim.
+
+    TODO: replace with backend API response. The backend should return a single
+    result object containing verdict, evidence, and multi-model comparison fields.
+    """
+    normalized_claim = claim.strip()
+    base_result = FAKE_RESULTS.get(normalized_claim)
+
+    if not base_result:
+        return build_default_result(normalized_claim)
+
+    filtered_evidence = filter_evidence_by_source(base_result["evidence"], source_filter)
+    model_metadata = get_mock_model_metadata(normalized_claim, base_result["verdict"])
+
+    return {
+        **base_result,
+        **model_metadata,
+        "claim": normalized_claim,
+        "evidence": filtered_evidence,
+    }
 
 
 # -------------------------------------------------------------------
-# Render functions
+# Render helpers
 # -------------------------------------------------------------------
+def render_theme_hint() -> None:
+    """Placeholder for future theme customization via `.streamlit/config.toml`."""
+
+
 def render_header() -> None:
     """Render the top page header and product description."""
     st.title(PAGE_TITLE)
@@ -451,46 +608,41 @@ def render_header() -> None:
 
 
 def render_verdict(result: dict) -> None:
-    """Render a tighter verdict block with a user-facing takeaway."""
-    verdict_title, verdict_summary = get_verdict_summary(result["verdict"])
+    """Render a card-style verdict block without confidence display."""
+    verdict = result["verdict"]
+    verdict_title, default_summary = get_verdict_summary(verdict)
+    summary = result.get("summary", default_summary)
+    what_this_means = result.get("what_this_means", get_user_decision_message(verdict))
+    evidence_list = result.get("evidence", [])
 
+    # removed confidence display because backend does not provide reliable score
     with st.container(border=True):
-        st.markdown(verdict_title.replace("❌", "## ❌").replace("✅", "## ✅").replace("⚠️", "## ⚠️"))
-        # Keep the summary visually attached to the verdict so it reads as one block.
-        st.caption(verdict_summary)
+        st.markdown(f"## {verdict_title}")
+        st.caption(summary)
         st.markdown("**💡 What this means for you:**")
-        st.write(get_user_decision_message(result["verdict"]))
+        st.write(what_this_means)
+        st.caption(get_trusted_sources_label(evidence_list))
 
 
 def render_results_summary(result: dict) -> None:
-    """Render verdict, explanation, and confidence in the left column."""
+    """Render verdict, key insights, and explanation in the left column."""
     st.markdown("## 🧾 Claim Assessment")
 
     if result.get("claim"):
         st.caption(f"Claim checked: {result['claim']}")
 
-    # Add a trust layer near the top of the result flow to reinforce credibility.
-    st.caption(get_trusted_sources_label(result["evidence"]))
-
-    st.divider()
     render_verdict(result)
-    st.divider()
-
-    confidence_label = get_confidence_level(result["confidence"])
-    st.markdown("### 📊 Confidence")
-    st.metric(
-        label="Confidence",
-        value=f"{confidence_label} ({format_confidence(result['confidence'])})",
-    )
-    st.progress(result["confidence"])
 
     st.markdown("### 🧠 Key insights")
     st.caption("What you should know:")
-    takeaways = get_key_takeaways(result.get("claim", ""), result["verdict"])
-    st.markdown("\n".join([f"- {item}" for item in takeaways]))
+    insights = result.get(
+        "key_insights",
+        get_key_insights(result.get("claim", ""), result["verdict"]),
+    )
+    st.markdown("\n".join([f"- {item}" for item in insights]))
 
     with st.expander("💡 Explanation", expanded=False):
-        st.write(result["explanation"])
+        st.write(result.get("explanation", "No explanation available."))
 
 
 def render_claim_input_panel() -> None:
@@ -516,7 +668,6 @@ def render_claim_input_panel() -> None:
         key="claim_input",
     )
 
-    # removed dropdown to reduce redundancy
     st.radio(
         "Source filter",
         SOURCE_FILTERS,
@@ -536,7 +687,6 @@ def render_claim_input_panel() -> None:
         if not st.session_state.claim_input.strip():
             st.warning("Please enter a claim to check.")
         else:
-            # Keep loading feedback close to the action so users know analysis is in progress.
             with st.spinner("Analyzing claim using trusted sources..."):
                 result = get_fact_check_result(
                     st.session_state.claim_input,
@@ -563,12 +713,15 @@ def render_evidence_panel() -> None:
         st.info("Evidence will appear here after you check a claim.")
         return
 
-    evidence_list = result["evidence"]
+    evidence_list = result.get("evidence", [])
     st.caption(get_trusted_sources_label(evidence_list))
 
     st.markdown("#### 🧾 Evidence Summary")
-    evidence_summary = get_evidence_source_summary(evidence_list)
-    st.markdown("\n".join([f"- {item}" for item in evidence_summary]))
+    evidence_summary = result.get("evidence_summary", get_evidence_summary(evidence_list))
+    if isinstance(evidence_summary, list):
+        st.markdown("\n".join([f"- {item}" for item in evidence_summary]))
+    else:
+        st.write(evidence_summary)
 
     if not evidence_list:
         st.info("No supporting evidence is available for this claim in the current demo.")
@@ -576,43 +729,80 @@ def render_evidence_panel() -> None:
 
     for index, evidence in enumerate(evidence_list, start=1):
         expander_title = (
-            f"Evidence {index} · {evidence['source']} · "
-            f"{evidence.get('stance', 'Unspecified')} · Score {evidence['score']:.2f}"
+            f"Evidence {index} · {evidence.get('source', 'Unknown')} · "
+            f"{evidence.get('stance', 'Unspecified')}"
         )
         with st.expander(expander_title, expanded=index == 1):
             source_badges = {
                 "WHO": "🟦",
                 "CDC": "🟩",
             }
-            source_icon = source_badges.get(evidence["source"], "🟦")
-            st.markdown(f"### {source_icon} {evidence['source']}")
+            source = evidence.get("source", "Unknown")
+            source_icon = source_badges.get(source, "🟦")
+            st.markdown(f"### {source_icon} {source}")
             st.caption(evidence.get("stance", "Unspecified"))
-            st.markdown(f"**Title:** {evidence['title']}")
+            st.markdown(f"**Title:** {evidence.get('title', 'Untitled evidence')}")
             st.markdown("**Retrieved Text**")
-            st.write(evidence["text"])
-            st.markdown(f"[🔗 Open source]({evidence['url']})")
+            st.write(evidence.get("text", "No evidence text available."))
+            if evidence.get("url"):
+                st.markdown(f"[🔗 Open source]({evidence['url']})")
+
+
+def format_model_type(model_type: str) -> str:
+    """Convert model type values into readable labels."""
+    labels = {
+        "closed_book": "closed-book",
+        "rag": "RAG",
+    }
+    return labels.get(model_type, model_type)
+
+
+def render_model_card(model: dict) -> None:
+    """Render a single model result card."""
+    evidence_sources = model.get("evidence_sources", [])
+    evidence_label = ", ".join(evidence_sources) if evidence_sources else "No evidence"
+    has_evidence_label = "Yes" if model.get("has_evidence") else "No"
+
+    with st.container(border=True):
+        st.markdown(f"#### {model.get('model_name', 'Model')}")
+        st.caption(f"Type: {format_model_type(model.get('model_type', 'unknown'))}")
+        st.markdown(f"**Verdict:** {model.get('verdict', 'UNKNOWN')}")
+        st.markdown(f"**Summary:** {model.get('summary', 'No summary available.')}")
+        st.markdown(f"**Has evidence:** {has_evidence_label}")
+        st.markdown(f"**Evidence:** {evidence_label}")
 
 
 def render_model_comparison() -> None:
-    """Render the model comparison section at the bottom of the page."""
+    """Render the multi-model comparison section at the bottom of the page."""
     result = st.session_state.result
 
-    with st.expander("🔍 See model comparison", expanded=False):
-        left_col, right_col = st.columns(2, gap="large")
+    # Multi-model comparison reads from the same result object as the main verdict.
+    with st.expander("🔎 Multi-model Comparison", expanded=False):
+        st.caption("Final decision based on outputs from 4 models")
 
-        with left_col:
-            st.markdown("**Vanilla Seq2Seq**")
-            if result:
-                st.write(result["seq2seq_answer"])
-            else:
-                st.write("Vanilla Seq2Seq answer will appear here.")
+        if not result:
+            st.write("Model comparison will appear here after checking a claim.")
+            return
 
-        with right_col:
-            st.markdown("**RAG with Evidence**")
-            if result:
-                st.write(result["rag_answer"])
-            else:
-                st.write("RAG answer with evidence will appear here.")
+        final_verdict = result.get("final_verdict", result.get("verdict", "UNKNOWN").upper())
+        agreement_summary = result.get(
+            "agreement_summary",
+            "Model agreement summary is not available.",
+        )
+        models = result.get("models", build_default_models(result.get("verdict", "Uncertain")))
+
+        with st.container(border=True):
+            st.markdown(f"**Final verdict:** {final_verdict}")
+            st.markdown(f"**Agreement summary:** {agreement_summary}")
+
+        st.markdown("#### Model outputs")
+        row_1_col_1, row_1_col_2 = st.columns(2, gap="large")
+        row_2_col_1, row_2_col_2 = st.columns(2, gap="large")
+        card_slots = [row_1_col_1, row_1_col_2, row_2_col_1, row_2_col_2]
+
+        for slot, model in zip(card_slots, models[:4]):
+            with slot:
+                render_model_card(model)
 
 
 def render_footer() -> None:
